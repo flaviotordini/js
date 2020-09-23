@@ -1,0 +1,62 @@
+#include "jsnamfactory.h"
+
+JSDiskCache::JSDiskCache(QObject *parent) : QNetworkDiskCache(parent) {}
+
+void JSDiskCache::updateMetaData(const QNetworkCacheMetaData &meta) {
+    auto meta2 = fixMetadata(meta);
+    QNetworkDiskCache::updateMetaData(meta2);
+}
+
+QIODevice *JSDiskCache::prepare(const QNetworkCacheMetaData &meta) {
+    auto meta2 = fixMetadata(meta);
+    return QNetworkDiskCache::prepare(meta2);
+}
+
+QNetworkCacheMetaData JSDiskCache::fixMetadata(const QNetworkCacheMetaData &meta) {
+    QNetworkCacheMetaData meta2 = meta;
+
+    auto now = QDateTime::currentDateTimeUtc();
+    if (meta2.expirationDate() < now) {
+        meta2.setExpirationDate(now.addSecs(3600));
+    }
+
+    // Remove caching headers
+    auto headers = meta2.rawHeaders();
+    for (auto i = headers.begin(); i != headers.end(); ++i) {
+        // qDebug() << i->first << i->second;
+        if (i->first == "Cache-Control" || i->first == "Expires") {
+            qDebug() << "Removing" << i->first << i->second;
+            headers.erase(i);
+        }
+    }
+
+    return meta2;
+}
+
+JSNAM::JSNAM(QObject *parent) : QNetworkAccessManager(parent) {
+    auto cache = new JSDiskCache(this);
+    cache->setCacheDirectory(QStandardPaths::writableLocation(QStandardPaths::CacheLocation) +
+                             "/js");
+    setCache(cache);
+    setRedirectPolicy(QNetworkRequest::NoLessSafeRedirectPolicy);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+    setTransferTimeout(10000);
+#endif
+}
+
+QNetworkReply *JSNAM::createRequest(QNetworkAccessManager::Operation op,
+                                    const QNetworkRequest &request,
+                                    QIODevice *outgoingData) {
+    auto req2 = request;
+    req2.setAttribute(QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::PreferCache);
+
+    // TODO maybe set user agent
+
+    qDebug() << req2.url();
+    return QNetworkAccessManager::createRequest(op, req2, outgoingData);
+}
+
+QNetworkAccessManager *JSNAMFactory::create(QObject *parent) {
+    qDebug() << "Creating NAM";
+    return new JSNAM(parent);
+}
