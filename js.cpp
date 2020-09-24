@@ -4,12 +4,8 @@
 
 #include "cachedhttp.h"
 
-JS &JS::instance() {
-    static thread_local JS i;
-    return i;
-}
-
-Http &JS::cachedHttp() {
+namespace {
+Http &cachedHttp() {
     static Http *h = [] {
         CachedHttp *cachedHttp = new CachedHttp(Http::instance(), "js");
         cachedHttp->setMaxSeconds(3600 * 6);
@@ -23,6 +19,12 @@ Http &JS::cachedHttp() {
         return cachedHttp;
     }();
     return *h;
+}
+} // namespace
+
+JS &JS::instance() {
+    static thread_local JS i;
+    return i;
 }
 
 JS::JS(QObject *parent) : QObject(parent), engine(nullptr) {}

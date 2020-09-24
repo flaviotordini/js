@@ -62,8 +62,6 @@ class JS : public QObject {
 
 public:
     static JS &instance();
-    static Http &http();
-    static Http &cachedHttp();
 
     explicit JS(QObject *parent = nullptr);
     void initialize(const QUrl &url);
