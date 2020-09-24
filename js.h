@@ -3,8 +3,6 @@
 
 #include <QtQml>
 
-class Http;
-
 #include "jsresult.h"
 
 class JSTimer : public QTimer {
