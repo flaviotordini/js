@@ -1,29 +1,17 @@
 #include "js.h"
 
 #include "jsnamfactory.h"
-#include "jsresult.h"
 
 #include "cachedhttp.h"
-#include "http.h"
-#include "httputils.h"
 
 JS &JS::instance() {
     static thread_local JS i;
     return i;
 }
 
-Http &JS::http() {
-    static Http *h = [] {
-        Http *http = new Http;
-        http->addRequestHeader("User-Agent", HttpUtils::userAgent());
-        return http;
-    }();
-    return *h;
-}
-
 Http &JS::cachedHttp() {
     static Http *h = [] {
-        CachedHttp *cachedHttp = new CachedHttp(http(), "js");
+        CachedHttp *cachedHttp = new CachedHttp(Http::instance(), "js");
         cachedHttp->setMaxSeconds(3600 * 6);
         // Avoid expiring the cached js
         cachedHttp->setMaxSize(0);

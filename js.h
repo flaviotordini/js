@@ -4,7 +4,8 @@
 #include <QtQml>
 
 class Http;
-class JSResult;
+
+#include "jsresult.h"
 
 class JSTimer : public QTimer {
     Q_OBJECT
