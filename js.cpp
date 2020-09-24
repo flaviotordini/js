@@ -106,9 +106,3 @@ void JS::initialize() {
         initializing = false;
     });
 }
-
-QJSValue JS::evaluate(const QString &js) {
-    auto value = engine->evaluate(js);
-    checkError(value);
-    return value;
-}

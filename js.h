@@ -80,7 +80,6 @@ signals:
 
 private:
     void initialize();
-    QJSValue evaluate(const QString &js);
 
     QQmlEngine *engine;
     bool initializing = false;
