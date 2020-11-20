@@ -3,6 +3,7 @@
 
 #include <QtQml>
 
+#include "jsnamfactory.h"
 #include "jsresult.h"
 
 class JSTimer : public QTimer {
@@ -74,6 +75,8 @@ public:
     static JS &instance();
 
     explicit JS(QObject *parent = nullptr);
+    JSNAMFactory &getNamFactory() { return namFactory; };
+
     void initialize(const QUrl &url);
     bool checkError(const QJSValue &value);
 
@@ -90,6 +93,7 @@ private:
     void initialize();
 
     QQmlEngine *engine;
+    JSNAMFactory namFactory;
     bool initializing = false;
     bool ready = false;
     QUrl url;

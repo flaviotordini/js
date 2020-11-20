@@ -35,7 +35,8 @@ QNetworkCacheMetaData JSDiskCache::fixMetadata(const QNetworkCacheMetaData &meta
     return meta2;
 }
 
-JSNAM::JSNAM(QObject *parent) : QNetworkAccessManager(parent) {
+JSNAM::JSNAM(QObject *parent, const JSNAMFactory &factory)
+    : QNetworkAccessManager(parent), factory(factory) {
     auto cache = new JSDiskCache(this);
     cache->setCacheDirectory(QStandardPaths::writableLocation(QStandardPaths::CacheLocation) +
                              "/js");
@@ -52,13 +53,16 @@ QNetworkReply *JSNAM::createRequest(QNetworkAccessManager::Operation op,
     auto req2 = request;
     req2.setAttribute(QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::PreferCache);
 
-    // TODO maybe set user agent
+    auto end = factory.getRequestHeaders().cend();
+    for (auto i = factory.getRequestHeaders().cbegin(); i != end; ++i) {
+        req2.setRawHeader(i.key(), i.value());
+    }
 
-    qDebug() << req2.url();
+    qDebug() << req2.url() << req2.rawHeaderList();
     return QNetworkAccessManager::createRequest(op, req2, outgoingData);
 }
 
 QNetworkAccessManager *JSNAMFactory::create(QObject *parent) {
     qDebug() << "Creating NAM";
-    return new JSNAM(parent);
+    return new JSNAM(parent, *this);
 }

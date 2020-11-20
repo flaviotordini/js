@@ -1,7 +1,5 @@
 #include "js.h"
 
-#include "jsnamfactory.h"
-
 #include "cachedhttp.h"
 
 namespace {
@@ -85,7 +83,7 @@ void JS::initialize() {
 
     if (engine) engine->deleteLater();
     engine = new QQmlEngine(this);
-    engine->setNetworkAccessManagerFactory(new JSNAMFactory);
+    engine->setNetworkAccessManagerFactory(&namFactory);
     engine->globalObject().setProperty("global", engine->globalObject());
 
     QJSValue timer = engine->newQObject(new JSTimer(engine));
