@@ -89,8 +89,14 @@ void JS::initialize() {
     engine->globalObject().setProperty("global", engine->globalObject());
 
     QJSValue timer = engine->newQObject(new JSTimer(engine));
+    engine->globalObject().setProperty("setTimeoutQt", timer.property("setTimeout"));
+    QJSValue setTimeoutWrapperFunction =
+            engine->evaluate("function setTimeout(cb, delay) {"
+                             "const args = Array.prototype.slice.call(arguments, 2);"
+                             "return setTimeoutQt(cb, delay, args);"
+                             "}");
+    checkError(setTimeoutWrapperFunction);
     engine->globalObject().setProperty("clearTimeout", timer.property("clearTimeout"));
-    engine->globalObject().setProperty("setTimeout", timer.property("setTimeout"));
 
     connect(cachedHttp().get(url), &HttpReply::finished, this, [this](auto &reply) {
         if (!reply.isSuccessful()) {
