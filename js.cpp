@@ -8,7 +8,7 @@ namespace {
 Http &cachedHttp() {
     static Http *h = [] {
         CachedHttp *cachedHttp = new CachedHttp(Http::instance(), "js");
-        cachedHttp->setMaxSeconds(3600 * 6);
+        cachedHttp->setMaxSeconds(3600);
         // Avoid expiring the cached js
         cachedHttp->setMaxSize(0);
 
