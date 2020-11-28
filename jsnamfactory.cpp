@@ -55,7 +55,11 @@ QNetworkReply *JSNAM::createRequest(QNetworkAccessManager::Operation op,
 
     auto end = factory.getRequestHeaders().cend();
     for (auto i = factory.getRequestHeaders().cbegin(); i != end; ++i) {
-        req2.setRawHeader(i.key(), i.value());
+        if (!req2.hasRawHeader(i.key()))
+            req2.setRawHeader(i.key(), i.value());
+        else
+            qDebug() << "Request for" << req2.url() << "already contains header" << i.key()
+                     << req2.rawHeader(i.key());
     }
 
     qDebug() << req2.url() << req2.rawHeaderList();
