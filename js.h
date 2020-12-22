@@ -11,22 +11,25 @@ class JSTimer : public QTimer {
 
 public:
     static auto &getTimers() {
-        static QHash<QString, JSTimer *> timers;
+        static QHash<uint, JSTimer *> timers;
         return timers;
     }
+
+    auto getId() const { return id; }
+
     // This should be static but cannot bind static functions to QJSEngine
     Q_INVOKABLE QJSValue clearTimeout(QJSValue id) {
-        // qDebug() << id.toString();
-        auto timer = getTimers().take(id.toString());
+        auto timer = getTimers().take(id.toUInt());
         if (timer) {
             timer->stop();
             timer->deleteLater();
-        }
+        } else
+            qDebug() << "Unknown id" << id.toUInt();
         return QJSValue();
     }
     // This should be static but cannot bind static functions to QJSEngine
     Q_INVOKABLE QJSValue setTimeout(QJSValue callback, QJSValue delayTime, QJSValue args) {
-        // qDebug() << callback.toString() << delayTime.toInt() << args.toString();
+        qDebug() << callback.toString() << delayTime.toInt() << args.toString();
 
         QJSValueList valueArgs;
         if (args.isArray()) {
@@ -40,8 +43,7 @@ public:
 
         auto timer = new JSTimer();
         timer->setInterval(delayTime.toInt());
-
-        connect(timer, &JSTimer::timeout, timer, [callback, valueArgs]() mutable {
+        connect(timer, &JSTimer::timeout, this, [callback, valueArgs]() mutable {
             qDebug() << "Calling" << callback.toString();
             if (!callback.isCallable()) qDebug() << callback.toString() << "is not callable";
             auto value = callback.call(valueArgs);
@@ -51,21 +53,22 @@ public:
             }
         });
         timer->start();
-        return timer->hashString();
+        return timer->getId();
     }
 
     Q_INVOKABLE JSTimer(QObject *parent = nullptr) : QTimer(parent) {
         setTimerType(Qt::CoarseTimer);
         setSingleShot(true);
-        const auto hash = hashString();
-        connect(this, &JSTimer::destroyed, this, [hash] { getTimers().remove(hash); });
+        // avoid 0
+        static uint counter = 1;
+        id = counter++;
+        connect(this, &JSTimer::destroyed, this, [id = id] { getTimers().remove(id); });
         connect(this, &JSTimer::timeout, this, &QTimer::deleteLater);
-        getTimers().insert(hash, this);
+        getTimers().insert(id, this);
     }
 
-    QString hashString() { return QString::number((std::uintptr_t)(this)); }
-
 private:
+    uint id;
 };
 
 class JS : public QObject {
