@@ -55,6 +55,10 @@ JSResult &JS::callFunction(JSResult *result, const QString &name, const QJSValue
         return *result;
     }
 
+    auto nam = getEngine().networkAccessManager();
+    nam->clearAccessCache();
+    nam->setCookieJar(new QNetworkCookieJar());
+
     auto function = engine->evaluate(name);
     if (!function.isCallable()) {
         qWarning() << function.toString() << " is not callable";
