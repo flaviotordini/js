@@ -18,14 +18,15 @@ public:
     auto getId() const { return id; }
 
     // This should be static but cannot bind static functions to QJSEngine
-    Q_INVOKABLE QJSValue clearTimeout(QJSValue id) {
+    Q_INVOKABLE void clearTimeout(QJSValue id) {
+        // qDebug() << "Clearing timer" << id.toString();
         auto timer = getTimers().take(id.toUInt());
         if (timer) {
             timer->stop();
             timer->deleteLater();
         } else
             qDebug() << "Unknown id" << id.toUInt();
-        return QJSValue();
+        return;
     }
     // This should be static but cannot bind static functions to QJSEngine
     Q_INVOKABLE QJSValue setTimeout(QJSValue callback, QJSValue delayTime, QJSValue args) {
