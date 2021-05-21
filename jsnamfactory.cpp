@@ -62,8 +62,25 @@ QNetworkReply *JSNAM::createRequest(QNetworkAccessManager::Operation op,
                      << req2.rawHeader(i.key());
     }
 
-    qDebug() << req2.url() << req2.rawHeaderList();
-    return QNetworkAccessManager::createRequest(op, req2, outgoingData);
+#ifndef QT_NO_DEBUG_OUTPUT
+    qDebug() << req2.url();
+    for (const auto &h : req2.rawHeaderList())
+        qDebug() << h << req2.rawHeader(h);
+#endif
+
+    auto reply = QNetworkAccessManager::createRequest(op, req2, outgoingData);
+
+#ifndef QT_NO_DEBUG_OUTPUT
+    connect(reply, &QNetworkReply::finished, this, [reply] {
+        qDebug() << "finished"
+                 << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toUInt()
+                 << reply->url() << reply->rawHeaderPairs();
+    });
+    connect(reply, &QNetworkReply::redirectAllowed, this,
+            [reply] { qDebug() << "redirectAllowed" << reply->url(); });
+#endif
+
+    return reply;
 }
 
 QNetworkAccessManager *JSNAMFactory::create(QObject *parent) {
