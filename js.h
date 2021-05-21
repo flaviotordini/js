@@ -58,7 +58,7 @@ public:
     }
 
     Q_INVOKABLE JSTimer(QObject *parent = nullptr) : QTimer(parent) {
-        setTimerType(Qt::CoarseTimer);
+        setTimerType(Qt::PreciseTimer);
         setSingleShot(true);
         // avoid 0
         static uint counter = 1;
