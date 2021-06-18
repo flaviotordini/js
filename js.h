@@ -88,6 +88,7 @@ public:
     QQmlEngine &getEngine() { return *engine; }
 
     JSResult &callFunction(JSResult *result, const QString &name, const QJSValueList &args);
+    void resetNAM();
 
 signals:
     void initialized();

@@ -55,9 +55,7 @@ JSResult &JS::callFunction(JSResult *result, const QString &name, const QJSValue
         return *result;
     }
 
-    auto nam = getEngine().networkAccessManager();
-    nam->clearAccessCache();
-    nam->setCookieJar(new QNetworkCookieJar());
+    resetNAM();
 
     auto function = engine->evaluate(name);
     if (!function.isCallable()) {
@@ -73,6 +71,24 @@ JSResult &JS::callFunction(JSResult *result, const QString &name, const QJSValue
     if (checkError(v)) QTimer::singleShot(0, result, [result, v] { result->setError(v); });
 
     return *result;
+}
+
+void JS::resetNAM() {
+    class MyCookieJar : public QNetworkCookieJar {
+        bool insertCookie(const QNetworkCookie &cookie) {
+            if (cookie.name().contains("CONSENT")) {
+                qDebug() << "Fixing CONSENT cookie" << cookie;
+                auto cookie2 = cookie;
+                cookie2.setValue(cookie.value().replace("PENDING", "YES"));
+                return QNetworkCookieJar::insertCookie(cookie2);
+            }
+            return QNetworkCookieJar::insertCookie(cookie);
+        }
+    };
+
+    auto nam = getEngine().networkAccessManager();
+    nam->clearAccessCache();
+    nam->setCookieJar(new MyCookieJar());
 }
 
 void JS::initialize() {
