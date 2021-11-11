@@ -55,8 +55,6 @@ JSResult &JS::callFunction(JSResult *result, const QString &name, const QJSValue
         return *result;
     }
 
-    resetNAM();
-
     auto function = engine->evaluate(name);
     if (!function.isCallable()) {
         qWarning() << function.toString() << " is not callable";
@@ -126,6 +124,7 @@ void JS::initialize() {
         auto value = engine->evaluate(reply.body());
         if (!checkError(value)) {
             qDebug() << "Initialized";
+            resetNAM();
             ready = true;
             emit initialized();
         }
