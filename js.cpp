@@ -1,6 +1,7 @@
 #include "js.h"
 
 #include "cachedhttp.h"
+#include "jsvm.h"
 
 namespace {
 Http &cachedHttp() {
@@ -113,6 +114,9 @@ void JS::initialize() {
                              "}");
     checkError(setTimeoutWrapperFunction);
     engine->globalObject().setProperty("clearTimeout", timer.property("clearTimeout"));
+
+    QJSValue vm = engine->newQObject(new JSVM(engine));
+    engine->globalObject().setProperty("runInContextQt", vm.property("runInContext"));
 
     connect(cachedHttp().get(url), &HttpReply::finished, this, [this](auto &reply) {
         if (!reply.isSuccessful()) {
