@@ -36,7 +36,7 @@ void JS::initialize(const QUrl &url) {
 bool JS::checkError(const QJSValue &value) {
     if (value.isError()) {
         qWarning() << "Error" << value.toString();
-        qDebug() << value.property("stack").toString().splitRef('\n');
+        qDebug() << value.property("stack").toString().split('\n');
         return true;
     }
     return false;

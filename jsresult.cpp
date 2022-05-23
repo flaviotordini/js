@@ -33,7 +33,7 @@ QJSValue JSResult::setData(QJSValue value) {
 QJSValue JSResult::setError(QJSValue value) {
     QString message = value.toString();
     qWarning() << "Error" << message;
-    qDebug() << value.property("stack").toString().splitRef('\n');
+    qDebug() << value.property("stack").toString().split('\n');
     emit error(message);
     return QJSValue();
 }

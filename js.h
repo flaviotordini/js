@@ -50,7 +50,7 @@ public:
             auto value = callback.call(valueArgs);
             if (value.isError()) {
                 qWarning() << "Error" << value.toString();
-                qDebug() << value.property("stack").toString().splitRef('\n');
+                qDebug() << value.property("stack").toString().split('\n');
             }
         });
         timer->start();
