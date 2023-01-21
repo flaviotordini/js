@@ -1,7 +1,7 @@
 #include "jsresult.h"
 
 QJSValue JSResult::setData(QJSValue value) {
-    qDebug() << "Success" << value.toString();
+    qDebug() << "Success" << value.toVariant();
 
     if (isSignalConnected(QMetaMethod::fromSignal(&JSResult::json))) {
         if (value.isObject()) {
