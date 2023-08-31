@@ -30,14 +30,14 @@ public:
     }
     // This should be static but cannot bind static functions to QJSEngine
     Q_INVOKABLE QJSValue setTimeout(QJSValue callback, QJSValue delayTime, QJSValue args) {
-        qDebug() << callback.toString() << delayTime.toInt() << args.toString();
+        // qDebug() << callback.toString() << delayTime.toInt() << args.toString();
 
         QJSValueList valueArgs;
         if (args.isArray()) {
             const int argsLength = args.property("length").toInt();
             for (int i = 0; i < argsLength; ++i) {
                 auto arg = args.property(i);
-                qDebug() << "Adding arg" << arg.toString();
+                // qDebug() << "Adding arg" << arg.toString();
                 valueArgs << arg;
             }
         }
@@ -45,7 +45,7 @@ public:
         auto timer = new JSTimer();
         timer->setInterval(delayTime.toInt());
         connect(timer, &JSTimer::timeout, this, [callback, valueArgs]() mutable {
-            qDebug() << "Calling" << callback.toString();
+            // qDebug() << "Calling" << callback.toString();
             if (!callback.isCallable()) qDebug() << callback.toString() << "is not callable";
             auto value = callback.call(valueArgs);
             if (value.isError()) {
