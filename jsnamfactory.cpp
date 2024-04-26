@@ -64,8 +64,8 @@ QNetworkReply *JSNAM::createRequest(QNetworkAccessManager::Operation op,
 
 #ifndef QT_NO_DEBUG_OUTPUT
     qDebug() << req2.url();
-    for (const auto &h : req2.rawHeaderList())
-        qDebug() << h << req2.rawHeader(h);
+    // for (const auto &h : req2.rawHeaderList())
+    //     qDebug() << h << req2.rawHeader(h);
 #endif
 
     auto reply = QNetworkAccessManager::createRequest(op, req2, outgoingData);
