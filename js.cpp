@@ -100,9 +100,10 @@ void JS::initialize() {
     initializing = true;
     qDebug() << "Initializing";
 
-    if (engine) engine->deleteLater();
-    engine = new QQmlEngine(this);
-    engine->setNetworkAccessManagerFactory(&namFactory);
+    if (!engine) {
+        engine = new QQmlEngine(this);
+        engine->setNetworkAccessManagerFactory(&namFactory);
+    }
     engine->globalObject().setProperty("global", engine->globalObject());
 
     QJSValue timer = engine->newQObject(new JSTimer(engine));

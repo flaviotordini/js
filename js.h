@@ -85,6 +85,7 @@ public:
     bool checkError(const QJSValue &value);
 
     bool isInitialized();
+    void setEngine(QQmlEngine *value) { engine = value; }
     QQmlEngine &getEngine() { return *engine; }
 
     JSResult &callFunction(JSResult *result, const QString &name, const QJSValueList &args);
