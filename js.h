@@ -79,7 +79,7 @@ public:
     static JS &instance();
 
     explicit JS(QObject *parent = nullptr);
-    JSNAMFactory &getNamFactory() { return namFactory; };
+    JSNAMFactory &getNamFactory() { return namFactory; }
 
     void initialize(const QUrl &url);
     bool checkError(const QJSValue &value);
