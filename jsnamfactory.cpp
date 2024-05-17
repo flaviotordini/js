@@ -41,6 +41,7 @@ JSNAM::JSNAM(QObject *parent, const JSNAMFactory &factory)
     auto cache = new JSDiskCache(this);
     cache->setCacheDirectory(QStandardPaths::writableLocation(QStandardPaths::CacheLocation) +
                              "/js");
+    cache->setMaximumCacheSize(1024 * 1024 * 10);
     setCache(cache);
     setRedirectPolicy(QNetworkRequest::NoLessSafeRedirectPolicy);
 #if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
