@@ -44,9 +44,7 @@ JSNAM::JSNAM(QObject *parent, const JSNAMFactory &factory)
     cache->setMaximumCacheSize(1024 * 1024 * 10);
     setCache(cache);
     setRedirectPolicy(QNetworkRequest::NoLessSafeRedirectPolicy);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
     setTransferTimeout(10000);
-#endif
 }
 
 QNetworkReply *JSNAM::createRequest(QNetworkAccessManager::Operation op,
