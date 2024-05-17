@@ -24,7 +24,8 @@ QNetworkCacheMetaData JSDiskCache::fixMetadata(const QNetworkCacheMetaData &meta
     auto headers = meta2.rawHeaders();
     for (auto i = headers.begin(); i != headers.end(); ++i) {
         // qDebug() << i->first << i->second;
-        static const QList<QByteArray> headersToRemove{"Cache-Control", "Expires", "Pragma"};
+        static const QList<QByteArray> headersToRemove{"cache-control", "expires", "pragma",
+                                                       "Cache-Control", "Expires", "Pragma"};
         if (headersToRemove.contains(i->first)) {
             qDebug() << "Removing" << i->first << i->second;
             headers.erase(i);
