@@ -23,7 +23,6 @@ QNetworkCacheMetaData JSDiskCache::fixMetadata(const QNetworkCacheMetaData &meta
     // Remove caching headers
     auto headers = meta2.rawHeaders();
     for (auto i = headers.begin(); i != headers.end(); ++i) {
-        // qDebug() << i->first << i->second;
         static const QList<QByteArray> headersToRemove{"cache-control", "expires", "pragma",
                                                        "Cache-Control", "Expires", "Pragma"};
         if (headersToRemove.contains(i->first)) {
@@ -43,6 +42,7 @@ JSNAM::JSNAM(QObject *parent, const JSNAMFactory &factory)
                              "/js");
     cache->setMaximumCacheSize(1024 * 1024 * 10);
     setCache(cache);
+
     setRedirectPolicy(QNetworkRequest::NoLessSafeRedirectPolicy);
     setTransferTimeout(10000);
 }
@@ -57,22 +57,17 @@ QNetworkReply *JSNAM::createRequest(QNetworkAccessManager::Operation op,
     for (auto i = factory.getRequestHeaders().cbegin(); i != end; ++i) {
         if (!req2.hasRawHeader(i.key()))
             req2.setRawHeader(i.key(), i.value());
-        else
-            qDebug() << "Request for" << req2.url() << "already contains header" << i.key()
-                     << req2.rawHeader(i.key());
+        // else
+        // qDebug() << "Not setting factory header" << i.key() << req2.rawHeader(i.key()) << "to
+        // value" << i.value();
     }
-
-#ifndef QT_NO_DEBUG_OUTPUT
-    qDebug() << req2.url();
-    // for (const auto &h : req2.rawHeaderList())
-    //     qDebug() << h << req2.rawHeader(h);
-#endif
 
     auto reply = QNetworkAccessManager::createRequest(op, req2, outgoingData);
 
 #ifndef QT_NO_DEBUG_OUTPUT
     connect(reply, &QNetworkReply::finished, this, [reply] {
-        qDebug() << "finished"
+        bool fromCache = reply->attribute(QNetworkRequest::SourceIsFromCacheAttribute).toBool();
+        qDebug() << (fromCache ? "HIT" : "MISS")
                  << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toUInt()
                  << reply->url() << reply->rawHeaderPairs();
     });
