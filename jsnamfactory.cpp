@@ -41,6 +41,7 @@ JSNAM::JSNAM(QObject *parent, const JSNAMFactory &factory)
     cache->setCacheDirectory(QStandardPaths::writableLocation(QStandardPaths::CacheLocation) +
                              "/js");
     cache->setMaximumCacheSize(1024 * 1024 * 10);
+    qDebug() << "Setting cache" << cache;
     setCache(cache);
 
     setRedirectPolicy(QNetworkRequest::NoLessSafeRedirectPolicy);
@@ -50,6 +51,7 @@ JSNAM::JSNAM(QObject *parent, const JSNAMFactory &factory)
 QNetworkReply *JSNAM::createRequest(QNetworkAccessManager::Operation op,
                                     const QNetworkRequest &request,
                                     QIODevice *outgoingData) {
+    qDebug() << op << request.url();
     auto req2 = request;
     req2.setAttribute(QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::PreferCache);
 
@@ -79,6 +81,7 @@ QNetworkReply *JSNAM::createRequest(QNetworkAccessManager::Operation op,
 }
 
 QNetworkAccessManager *JSNAMFactory::create(QObject *parent) {
-    qDebug() << "Creating NAM";
-    return new JSNAM(parent, *this);
+    auto jsnam = new JSNAM(parent, *this);
+    qDebug() << "Created" << jsnam;
+    return jsnam;
 }
