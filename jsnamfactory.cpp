@@ -1,39 +1,54 @@
 #include "jsnamfactory.h"
 
-JSDiskCache::JSDiskCache(QObject *parent) : QNetworkDiskCache(parent) {}
-
-void JSDiskCache::updateMetaData(const QNetworkCacheMetaData &meta) {
-    auto meta2 = fixMetadata(meta);
-    QNetworkDiskCache::updateMetaData(meta2);
-}
-
-QIODevice *JSDiskCache::prepare(const QNetworkCacheMetaData &meta) {
-    auto meta2 = fixMetadata(meta);
-    return QNetworkDiskCache::prepare(meta2);
-}
-
-QNetworkCacheMetaData JSDiskCache::fixMetadata(const QNetworkCacheMetaData &meta) {
-    QNetworkCacheMetaData meta2 = meta;
-
-    auto now = QDateTime::currentDateTimeUtc();
-    if (meta2.expirationDate() < now) {
-        meta2.setExpirationDate(now.addSecs(3600));
+class JSDiskCache : public QNetworkDiskCache {
+public:
+    JSDiskCache(QObject *parent) : QNetworkDiskCache(parent) {}
+    void updateMetaData(const QNetworkCacheMetaData &meta) {
+        qDebug() << "updateMetaData";
+        QNetworkDiskCache::updateMetaData(fixMetadata(meta));
+    }
+    QIODevice *prepare(const QNetworkCacheMetaData &meta) {
+        qDebug() << "prepare";
+        return QNetworkDiskCache::prepare(fixMetadata(meta));
+    }
+    QNetworkCacheMetaData metaData(const QUrl &url) {
+        qDebug() << "metaData" << url;
+        // return QNetworkDiskCache::metaData(url);
+        return fixMetadata(QNetworkDiskCache::metaData(url));
+    }
+    void insert(QIODevice *device) {
+        qDebug() << "Caching";
+        QNetworkDiskCache::insert(device);
     }
 
-    // Remove caching headers
-    auto headers = meta2.rawHeaders();
-    for (auto i = headers.begin(); i != headers.end(); ++i) {
-        static const QList<QByteArray> headersToRemove{"cache-control", "expires", "pragma",
-                                                       "Cache-Control", "Expires", "Pragma"};
-        if (headersToRemove.contains(i->first)) {
-            qDebug() << "Removing" << i->first << i->second;
-            headers.erase(i);
+private:
+    static QNetworkCacheMetaData fixMetadata(const QNetworkCacheMetaData &meta) {
+        QNetworkCacheMetaData meta2 = meta;
+
+        auto now = QDateTime::currentDateTimeUtc();
+        if (meta2.expirationDate() < now) {
+            meta2.setExpirationDate(now.addSecs(86400));
         }
-    }
-    meta2.setRawHeaders(headers);
 
-    return meta2;
-}
+        meta2.setSaveToDisk(true);
+
+        // Remove caching headers
+        static const QList<QByteArray> headersToRemove{"cache-control", "expires", "etag", "pragma",
+                                                       "vary"};
+        QNetworkCacheMetaData::RawHeaderList headers;
+        for (const auto &h : meta2.rawHeaders()) {
+            auto headerName = h.first.isLower() ? h.first : h.first.toLower();
+            if (!headersToRemove.contains(headerName))
+                headers << h;
+            else
+                qDebug() << "Removing" << h.first << h.second;
+        }
+        headers.append(QNetworkCacheMetaData::RawHeader{"cache-control", "max-age=86400"});
+        meta2.setRawHeaders(headers);
+        qDebug() << "Fixed headers" << meta2.rawHeaders();
+        return meta2;
+    }
+};
 
 JSNAM::JSNAM(QObject *parent, const JSNAMFactory &factory)
     : QNetworkAccessManager(parent), factory(factory) {

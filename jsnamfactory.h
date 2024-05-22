@@ -28,14 +28,4 @@ private:
     const JSNAMFactory &factory;
 };
 
-class JSDiskCache : public QNetworkDiskCache {
-public:
-    JSDiskCache(QObject *parent);
-    void updateMetaData(const QNetworkCacheMetaData &meta);
-    QIODevice *prepare(const QNetworkCacheMetaData &meta);
-
-private:
-    QNetworkCacheMetaData fixMetadata(const QNetworkCacheMetaData &meta);
-};
-
 #endif // YTJSNAMFACTORY_H
