@@ -7,7 +7,7 @@ class JSNAMFactory : public QQmlNetworkAccessManagerFactory {
 public:
     QNetworkAccessManager *create(QObject *parent);
 
-    void setRequestHeaders(QMap<QByteArray, QByteArray> value) { requestHeaders = value; };
+    void setRequestHeaders(QMap<QByteArray, QByteArray> value) { requestHeaders = value; }
     const QMap<QByteArray, QByteArray> &getRequestHeaders() const { return requestHeaders; }
 
 private:
