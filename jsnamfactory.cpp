@@ -11,15 +11,6 @@ public:
         qDebug() << "prepare";
         return QNetworkDiskCache::prepare(fixMetadata(meta));
     }
-    QNetworkCacheMetaData metaData(const QUrl &url) {
-        qDebug() << "metaData" << url;
-        // return QNetworkDiskCache::metaData(url);
-        return fixMetadata(QNetworkDiskCache::metaData(url));
-    }
-    void insert(QIODevice *device) {
-        qDebug() << "Caching";
-        QNetworkDiskCache::insert(device);
-    }
 
 private:
     static QNetworkCacheMetaData fixMetadata(const QNetworkCacheMetaData &meta) {
